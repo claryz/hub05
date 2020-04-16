@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./lib/bootstrap-3.3.7.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- 添加头部 -->
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">添加品牌</h3>
+            </div>
+            <div class="panel-body form-inline">
+                <label>
+                    Id:
+                    <input type="text" class="form-control" v-model='id'>
+                </label>
+                <label>
+                    Name:
+                    <input type="text" class="form-control" v-model='name' @keyup.f2='add' v-focus v-color>
+                </label>
+                <input type="button" value="添加" class="btn btn-primary" @click='add'>
+                <!-- 搜索关键字 -->
+                <label>
+                    搜索：
+                    <input type="text" class="form-control" v-model='keywords'>
+                </label>
+                <!--  -->
+            </div>
+        </div>
+        <!--  -->
+        <table class="table table-bordered table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>name</th>
+                    <th>ctime</th>
+                    <th>
+                        <a href="#">操作</a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for='(item,index) in search(keywords) '>
+                    <td>{{item.id}} </td>
+                    <td>{{item.name}} </td>
+                    <td>{{item.ctime | dataFormat}} </td>
+                    <td>
+                        <a href="#" @click='del(index)'>
+                            delete
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+<script src="./lib/vue-2.4.0(1).js"></script>
+<script>
+    // dataFormat 通过过滤器进行时间格式化
+    Vue.filter('dataFormat', function (data) {
+        var dt = new Date();
+        var y = dt.getFullYear();//年
+        // 补零操作String.prototype.padStart(maxlength,fillString);
+        var m = (dt.getMonth() + 1).toString().padStart(2, '0');//月
+        var d = (dt.getDay()).toString().padStart(2, '0');//日
+        var h = (dt.getHours()).toString().padStart(2, '0');//时
+        var min = (dt.getMinutes() + 1).toString().padStart(2, '0');//分
+        var s = (dt.getSeconds()).toString().padStart(2, '0');//秒
+        //填充的，这个位置放两个数，另一个数用‘0’填充
+        return `${y}-${m}-${d}   ${h}:${min}:${s}`;
+        //打印除${}以外的所有东西
+    })
+    //全局配置指令    Vue.directive('指令名称',对象)
+    //获取焦点
+    Vue.directive('focus', {
+        bind: function (el, binding) {
+            el.focus();
+        },
+        inserted: function (el, binding) {
+            el.focus();
+        },
+        update: function (el, binding) {
+
+        }
+    })
+    //配置样式
+    Vue.directive('color', {
+        bind: function (el, binding) {
+            el.style.color = "red"
+            // 如果只是操作属性，添加到bind方法中
+        },
+        inserted: function (el, binding) {
+            // 操作js的，那么需要把方法写到inserted里面
+        },
+        update: function (el, binding) {
+
+        }
+    
+    })
+
+    //键盘事件
+    //以前的键盘事件不足以满足需求，需要以下这样
+    Vue.config.keyCodes.f2 = 113;
+
+    let vm = new Vue({
+        el: '#app',
+        data: {
+            id: '',
+            name: '',
+            ctime: '',
+            keywords: '',
+
+            list: [
+                { id: 1, name: '苹果', ctime: new Date() },
+                { id: 2, name: '香蕉', ctime: new Date() },
+                { id: 3, name: '例子', ctime: new Date() }
+            ]
+        },
+        methods: {
+            add() {
+                this.list.push({ id: this.id, name: this.name, ctime: new Date() })
+            },
+            del(index) {
+                for (var i = 0; i < this.list.length; i++) {
+                    if (i === index) {
+                        this.list.splice(i, 1)
+                    }
+                }
+            },
+            search(keywords){
+                return this.list.filter(item=>{
+                    if(item.name.includes(keywords)){
+                        return item
+                    }
+                })
+            }
+        },
+    })
+</script>
+
+</html>
